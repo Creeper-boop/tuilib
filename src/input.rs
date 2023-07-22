@@ -10,7 +10,7 @@ use signal_hook::iterator::Signals;
 use std::io::{Read, Write};
 use std::process::id;
 use std::sync::mpsc::Receiver;
-use std::sync::{mpsc, Arc};
+use std::sync::{mpsc, Arc, Mutex};
 use std::time::Duration;
 use std::{io, thread};
 
@@ -73,11 +73,11 @@ pub struct Input {
     /// All observers to notify of key events.
     ///
     /// See [KeyEventObserver].
-    key_observers: Vec<Arc<dyn KeyEventObserver>>,
+    key_observers: Arc<Mutex<Vec<Arc<dyn KeyEventObserver>>>>,
     /// All observers to notify of mouse events.
     ///
     /// See [MouseEventObserver].
-    mouse_observers: Vec<Arc<dyn MouseEventObserver>>,
+    mouse_observers: Arc<Mutex<Vec<Arc<dyn MouseEventObserver>>>>,
 }
 
 /// Enables the emulator raw mode, returns the previous state
@@ -134,7 +134,7 @@ impl Input {
             input_tx.send(buffer).unwrap();
         });
 
-        let mut input = Input {
+        let input = Input {
             debug: if debug {
                 Some(TuiDebug {
                     last_key_event: KeyEvent { code: 0 },
@@ -152,14 +152,26 @@ impl Input {
             sys_signals: Signals::new(&[SIGWINCH, SIGTERM, SIGINT, SIGQUIT, SIGHUP]).unwrap(),
             width,
             height,
-            key_observers: Vec::new(),
-            mouse_observers: Vec::new(),
+            key_observers: Arc::new(Mutex::new(Vec::new())),
+            mouse_observers: Arc::new(Mutex::new(Vec::new())),
         };
-        input.key_observers.push(Arc::new(ExitObserver {}));
-        input.key_observers.push(Arc::new(ReloadObserver {}));
+        input
+            .key_observers
+            .lock()
+            .unwrap()
+            .push(Arc::new(ExitObserver {}));
+        input
+            .key_observers
+            .lock()
+            .unwrap()
+            .push(Arc::new(ReloadObserver {}));
 
         if debug {
-            input.mouse_observers.push(Arc::new(DebugObserver {}));
+            input
+                .mouse_observers
+                .lock()
+                .unwrap()
+                .push(Arc::new(DebugObserver {}));
         }
 
         print!("\x1b[0m\x1b[H\x1b[J\x1b[?25l\x1b[?1003h");
@@ -212,7 +224,7 @@ impl Input {
                 if self.debug.is_some() {
                     self.debug.as_mut().unwrap().last_mouse_event = event.clone();
                 }
-                for observer in &self.mouse_observers {
+                for observer in self.mouse_observers.lock().unwrap().iter() {
                     observer.handle_mouse_event(event);
                 }
             } else {
@@ -222,7 +234,7 @@ impl Input {
                 if self.debug.is_some() {
                     self.debug.as_mut().unwrap().last_key_event = event.clone();
                 }
-                for observer in &self.key_observers {
+                for observer in self.key_observers.lock().unwrap().iter() {
                     observer.handle_key_event(event);
                 }
             }
