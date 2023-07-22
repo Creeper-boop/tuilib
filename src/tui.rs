@@ -47,13 +47,15 @@ impl KeyEventObserver for TuiKeyObserver {
             tui_lock.selected_element += tui_lock.reactive_elements.len() - 1;
             tui_lock.selected_element %= tui_lock.reactive_elements.len();
         }
-        tui_lock
-            .reactive_elements
-            .get(tui_lock.selected_element % tui_lock.reactive_elements.len())
-            .unwrap()
-            .lock()
-            .unwrap()
-            .keyboard(data);
+        if tui_lock.reactive_elements.len() > 0 {
+            tui_lock
+                .reactive_elements
+                .get(tui_lock.selected_element % tui_lock.reactive_elements.len())
+                .unwrap()
+                .lock()
+                .unwrap()
+                .keyboard(data);
+        }
     }
 }
 
