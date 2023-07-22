@@ -1,5 +1,7 @@
 //! Tui handling module.
 use crate::input::{KeyEvent, KeyEventObserver, MouseEvent, MouseEventObserver};
+use std::io;
+use std::io::Write;
 use std::sync::{Arc, Mutex};
 
 type MutexElement = Arc<Mutex<dyn Element>>;
@@ -145,6 +147,7 @@ pub trait TUI {
         sorted_elements.sort_by(|a, b| a.lock().unwrap().get_z().cmp(&b.lock().unwrap().get_z()));
         for element in sorted_elements {
             element.lock().unwrap().print();
+            let _ = io::stdout().lock().flush();
         }
     }
 

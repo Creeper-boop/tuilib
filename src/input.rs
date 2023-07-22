@@ -244,6 +244,7 @@ impl Input {
             self.debug.as_ref().unwrap().last_mouse_event.x,
             self.debug.as_ref().unwrap().last_mouse_event.y,
         );
+        let _ = io::stdout().lock().flush();
     }
 
     /// Main input loop.
@@ -251,6 +252,5 @@ impl Input {
         self.handle_signals();
         self.handle_input_events(input_timeout);
         self.debug();
-        let _ = io::stdout().lock().flush();
     }
 }
