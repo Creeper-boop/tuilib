@@ -22,6 +22,8 @@ use crate::input_observers::*;
 pub struct TuiDebug {
     last_key_event: KeyEvent,
     last_mouse_event: MouseEvent,
+    width: u16,
+    height: u16,
 }
 
 /// Describes one key event.
@@ -66,18 +68,14 @@ pub struct Input {
     input_rx: Receiver<[u8; 1]>,
     /// Used to listen to system signals such as SIGQUIT.
     sys_signals: Signals,
-    /// The terminal emulator width.
-    width: u16,
-    /// The terminal emulator height.
-    height: u16,
     /// All observers to notify of key events.
     ///
     /// See [KeyEventObserver].
-    key_observers: Arc<Mutex<Vec<Arc<dyn KeyEventObserver>>>>,
+    pub key_observers: Arc<Mutex<Vec<Arc<dyn KeyEventObserver>>>>,
     /// All observers to notify of mouse events.
     ///
     /// See [MouseEventObserver].
-    mouse_observers: Arc<Mutex<Vec<Arc<dyn MouseEventObserver>>>>,
+    pub mouse_observers: Arc<Mutex<Vec<Arc<dyn MouseEventObserver>>>>,
 }
 
 /// Enables the emulator raw mode, returns the previous state
@@ -125,8 +123,6 @@ pub fn debug_pos(x: u8, y: u8) {
 impl Input {
     #[allow(missing_docs)] // UwU
     pub fn new(debug: bool) -> Input {
-        let (height, width) = get_size();
-
         let (input_tx, input_rx) = mpsc::channel();
         thread::spawn(move || loop {
             let mut buffer = [0u8; 1];
@@ -136,6 +132,7 @@ impl Input {
 
         let input = Input {
             debug: if debug {
+                let (height, width) = get_size();
                 Some(TuiDebug {
                     last_key_event: KeyEvent { code: 0 },
                     last_mouse_event: MouseEvent {
@@ -143,6 +140,8 @@ impl Input {
                         x: 0,
                         y: 0,
                     },
+                    width,
+                    height,
                 })
             } else {
                 None
@@ -150,8 +149,6 @@ impl Input {
             return_state: set_raw_mode(),
             input_rx,
             sys_signals: Signals::new(&[SIGWINCH, SIGTERM, SIGINT, SIGQUIT, SIGHUP]).unwrap(),
-            width,
-            height,
             key_observers: Arc::new(Mutex::new(Vec::new())),
             mouse_observers: Arc::new(Mutex::new(Vec::new())),
         };
@@ -184,7 +181,9 @@ impl Input {
         for signal in self.sys_signals.pending() {
             match signal {
                 SIGWINCH => {
-                    (self.height, self.width) = get_size();
+                    if let Some(debug) = self.debug.as_mut() {
+                        (debug.height, debug.width) = get_size();
+                    }
                     print!("\x1b[0m\x1b[H\x1b[J");
                 }
                 SIGTERM | SIGINT | SIGQUIT | SIGHUP => {
@@ -248,9 +247,9 @@ impl Input {
         }
         print!(
             "\x1b[{}Hw:{} h:{} key:{} mouse:{} x:{} y:{}\x1b[K",
-            self.height,
-            self.width,
-            self.height,
+            self.debug.as_ref().unwrap().height,
+            self.debug.as_ref().unwrap().width,
+            self.debug.as_ref().unwrap().height,
             self.debug.as_ref().unwrap().last_key_event.code,
             self.debug.as_ref().unwrap().last_mouse_event.code,
             self.debug.as_ref().unwrap().last_mouse_event.x,

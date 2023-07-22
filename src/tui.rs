@@ -8,7 +8,7 @@ type MutexElement = Arc<Mutex<dyn Element>>;
 type MutexReactive = Arc<Mutex<dyn Reactive>>;
 
 /// Used for all tui elements.
-pub trait Element {
+pub trait Element: Sync + Send {
     /// Prints/renders the element.
     fn print(&self);
     /// Gets the z pos.
@@ -16,7 +16,7 @@ pub trait Element {
 }
 
 /// Used for reactive tui elements.
-pub trait Reactive {
+pub trait Reactive: Sync + Send {
     /// Handles the key event.
     fn keyboard(&self, data: KeyEvent);
     /// Handles the mouse event.
