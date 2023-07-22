@@ -40,10 +40,10 @@ pub struct TuiKeyObserver {
 impl KeyEventObserver for TuiKeyObserver {
     fn handle_key_event(&self, data: KeyEvent) {
         let mut tui_lock = self.tui.lock().unwrap();
-        if data == tui_lock.selection_next {
+        if data.code == tui_lock.selection_next {
             tui_lock.selected_element += 1;
             tui_lock.selected_element %= tui_lock.reactive_elements.len();
-        } else if data == tui_lock.selection_previous {
+        } else if data.code == tui_lock.selection_previous {
             tui_lock.selected_element += tui_lock.reactive_elements.len() - 1;
             tui_lock.selected_element %= tui_lock.reactive_elements.len();
         }
@@ -164,16 +164,16 @@ pub struct ReactiveTUI {
     /// Index of the selected element.
     selected_element: usize,
     /// Key event used to increase the selection index.
-    pub selection_next: KeyEvent,
+    pub selection_next: u8,
     /// Key event used to reduce the selection index
-    pub selection_previous: KeyEvent,
+    pub selection_previous: u8,
 }
 
 impl ReactiveTUI {
     #[allow(missing_docs)]
     pub fn new(
-        selection_next: KeyEvent,
-        selection_previous: KeyEvent,
+        selection_next: u8,
+        selection_previous: u8,
     ) -> (
         Arc<Mutex<ReactiveTUI>>,
         Arc<TuiKeyObserver>,

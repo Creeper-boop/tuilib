@@ -9,7 +9,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 fn main() {
-    let mut tui = ctiui::tui::StaticTUI::new();
+    let tui = ctiui::tui::StaticTUI::new();
     tui.lock()
         .unwrap()
         .elements
