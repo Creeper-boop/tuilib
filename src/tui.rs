@@ -40,14 +40,14 @@ pub struct TuiKeyObserver {
 impl KeyEventObserver for TuiKeyObserver {
     fn handle_key_event(&self, data: KeyEvent) {
         let mut tui_lock = self.tui.lock().unwrap();
-        if data.code == tui_lock.selection_next {
-            tui_lock.selected_element += 1;
-            tui_lock.selected_element %= tui_lock.reactive_elements.len();
-        } else if data.code == tui_lock.selection_previous {
-            tui_lock.selected_element += tui_lock.reactive_elements.len() - 1;
-            tui_lock.selected_element %= tui_lock.reactive_elements.len();
-        }
         if tui_lock.reactive_elements.len() > 0 {
+            if data.code == tui_lock.selection_next {
+                tui_lock.selected_element += 1;
+                tui_lock.selected_element %= tui_lock.reactive_elements.len();
+            } else if data.code == tui_lock.selection_previous {
+                tui_lock.selected_element += tui_lock.reactive_elements.len() - 1;
+                tui_lock.selected_element %= tui_lock.reactive_elements.len();
+            }
             tui_lock
                 .reactive_elements
                 .get(tui_lock.selected_element % tui_lock.reactive_elements.len())
@@ -55,6 +55,8 @@ impl KeyEventObserver for TuiKeyObserver {
                 .lock()
                 .unwrap()
                 .keyboard(data);
+        } else {
+            tui_lock.selected_element = 0
         }
     }
 }
