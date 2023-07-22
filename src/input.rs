@@ -32,7 +32,7 @@ pub struct KeyEvent {
 }
 
 /// Structs that implement this trait can be used to attach functions to key events.
-pub trait KeyEventObserver {
+pub trait KeyEventObserver: Sync + Send {
     /// Called each time a key event is received, after binding to input.
     fn handle_key_event(&self, data: KeyEvent);
 }
@@ -49,7 +49,7 @@ pub struct MouseEvent {
 }
 
 /// Structs that implement this trait can be used to attach functions to mouse events.
-pub trait MouseEventObserver {
+pub trait MouseEventObserver: Sync + Send {
     /// Called each time a mouse event is received, after binding to input.
     fn handle_mouse_event(&self, data: MouseEvent);
 }
