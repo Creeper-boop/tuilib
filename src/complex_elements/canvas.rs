@@ -2,6 +2,7 @@
 
 use crate::tui;
 use crate::tui::{bg_color_to_string, fg_color_to_string, force_colors};
+use std::sync::{Arc, Mutex};
 
 /// Tui element that renders elements on a limited plane.
 pub struct Canvas {
@@ -16,7 +17,7 @@ pub struct Canvas {
     /// Canvas height.
     pub height: u16,
     /// Parts of the tree.
-    pub elements: Vec<Element>,
+    pub elements: Vec<Arc<Mutex<Element>>>,
     /// Default element color.
     pub element_color: Option<tui::Color>,
     /// Background fill color.
@@ -47,24 +48,25 @@ impl tui::Element for Canvas {
         let mut canvas = vec![vec![" ".to_string(); self.width as usize]; self.height as usize];
         for element in self.elements.clone() {
             let mut element_grid: Vec<Vec<char>> = Vec::new();
-            for row in element.look.split('\n') {
+            let element_lock = element.lock().unwrap();
+            for row in element_lock.look.split('\n') {
                 element_grid.push(row.chars().collect());
             }
             for y in 0..element_grid.len() {
-                if element.y.saturating_add(y as isize) >= 0
-                    && element.y.saturating_add(y as isize) < self.height as isize
+                if element_lock.y.saturating_add(y as isize) >= 0
+                    && element_lock.y.saturating_add(y as isize) < self.height as isize
                 {
                     for x in 0..element_grid[y].len() {
-                        if element.x.saturating_add(x as isize) >= 0
-                            && element.x.saturating_add(x as isize) < self.width as isize
+                        if element_lock.x.saturating_add(x as isize) >= 0
+                            && element_lock.x.saturating_add(x as isize) < self.width as isize
                         {
-                            canvas[element.y.saturating_add(y as isize) as usize]
-                                [element.x.saturating_add(x as isize) as usize] =
-                                if let Some(color) = element.fg_color {
+                            canvas[element_lock.y.saturating_add(y as isize) as usize]
+                                [element_lock.x.saturating_add(x as isize) as usize] =
+                                if let Some(color) = element_lock.fg_color {
                                     fg_color_to_string(color)
                                 } else {
                                     "".to_string()
-                                } + &if let Some(color) = element.bg_color {
+                                } + &if let Some(color) = element_lock.bg_color {
                                     bg_color_to_string(color)
                                 } else {
                                     "".to_string()
