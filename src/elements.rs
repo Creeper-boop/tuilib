@@ -24,13 +24,16 @@ impl Element for Text {
     /// Prints content at the coordinates, doesn't split into multiple lines.
     fn print(&self) {
         if self.enabled {
-            print!(
-                "\x1b[{};{}H{}{}\x1b[0m",
-                self.y,
-                self.x,
-                force_colors(self.text_color, self.bg_color),
-                self.text
-            );
+            let lines: Vec<&str> = self.text.split('\n').collect();
+            for i in 0..lines.len() {
+                print!(
+                    "\x1b[{};{}H{}{}\x1b[0m",
+                    self.y + i as u16,
+                    self.x,
+                    force_colors(self.text_color, self.bg_color),
+                    lines.get(i).unwrap_or(&"")
+                );
+            }
         }
     }
 

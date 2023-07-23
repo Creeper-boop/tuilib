@@ -20,7 +20,7 @@ fn main() {
             text_color: None,
             bg_color: None,
             enabled: true,
-            text: "This is most definitely not a textbox".to_string(),
+            text: "This is most definitely not\na textbox".to_string(),
         })));
 
     tui.lock()
