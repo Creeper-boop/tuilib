@@ -90,7 +90,7 @@ impl MouseEventObserver for TuiMouseObserver {
 }
 
 /// Defines an rgb color.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq)]
 pub struct Color {
     /// Red value.
     pub r: u8,

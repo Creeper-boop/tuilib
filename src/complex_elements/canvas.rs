@@ -27,7 +27,7 @@ pub struct Canvas {
 }
 
 /// Element rendered on a canvas
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct Element {
     /// X position.
     pub x: isize,
