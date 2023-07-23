@@ -1,6 +1,8 @@
 use ctiui;
 use ctiui::colors::{GREY, ORANGE};
-use ctiui::element_tree::{ElementTree, Folder, Part, CLOSED_FOLDER, OPEN_FOLDER, SIMPLE_SET};
+use ctiui::complex_elements::element_tree::{
+    ElementTree, Folder, Part, CLOSED_FOLDER, OPEN_FOLDER, SIMPLE_SET,
+};
 use ctiui::elements;
 use ctiui::lines::LINES_HEAVY;
 use ctiui::tui::TUI;

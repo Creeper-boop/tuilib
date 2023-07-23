@@ -3,7 +3,7 @@
 //! Tui lib ^.^
 
 pub mod colors;
-pub mod element_tree;
+pub mod complex_elements;
 pub mod elements;
 pub mod errors;
 pub mod input;
