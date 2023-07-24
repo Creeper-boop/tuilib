@@ -5,6 +5,7 @@ use crate::tui::{bg_color_to_string, fg_color_to_string, force_colors};
 use std::sync::{Arc, Mutex};
 
 /// Tui element that renders elements on a limited plane.
+#[derive(Debug)]
 pub struct Canvas {
     /// X position.
     pub x: u16,
@@ -27,7 +28,7 @@ pub struct Canvas {
 }
 
 /// Element rendered on a canvas
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct Element {
     /// X position.
     pub x: isize,

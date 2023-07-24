@@ -5,6 +5,7 @@ use crate::tui::force_colors;
 use std::collections::HashMap;
 
 /// Tui element that renders elements in a tree like fashion.
+#[derive(Debug)]
 pub struct ElementTree {
     /// X position.
     pub x: u16,
@@ -33,6 +34,7 @@ pub struct ElementTree {
 }
 
 /// Defines an icon.
+#[derive(Debug)]
 pub struct Icon {
     /// Icon color.
     pub color: Option<tui::Color>,
@@ -52,6 +54,7 @@ impl Icon {
 }
 
 /// Line set used for element trees.
+#[derive(Debug)]
 pub struct LineSet {
     /// Character for the top entry.
     top_entry: char,
@@ -70,6 +73,7 @@ pub struct LineSet {
 }
 
 /// Defines a part of the element tree, either an element or a folder with nested parts.
+#[derive(Debug)]
 pub enum Part {
     #[allow(missing_docs)]
     Element(Element),
@@ -78,6 +82,7 @@ pub enum Part {
 }
 
 /// Defines an element tree element.
+#[derive(Debug)]
 pub struct Element {
     /// Element name.
     pub name: String,
@@ -86,6 +91,7 @@ pub struct Element {
 }
 
 /// Defines an element tree folder.
+#[derive(Debug)]
 pub struct Folder {
     /// Element name.
     pub name: String,

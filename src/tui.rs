@@ -90,7 +90,7 @@ impl MouseEventObserver for TuiMouseObserver {
 }
 
 /// Defines an rgb color.
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub struct Color {
     /// Red value.
     pub r: u8,
@@ -128,6 +128,7 @@ pub fn force_colors(fg_color: Option<Color>, bg_color: Option<Color>) -> String 
 }
 
 /// Defines a pallet of line drawing characters.
+#[derive(Debug)]
 pub struct LineSet {
     /// Character for straight horizontal line.
     pub horizontal: char,

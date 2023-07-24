@@ -3,6 +3,7 @@
 use crate::tui::{force_colors, Color, Element, LineSet};
 
 /// Tui element that renders text.
+#[derive(Debug)]
 pub struct Text {
     /// X position.
     pub x: u16,
@@ -43,6 +44,7 @@ impl Element for Text {
 }
 
 /// Tui element that renders a box outline around an area.
+#[derive(Debug)]
 pub struct Box {
     /// X position.
     pub x: u16,

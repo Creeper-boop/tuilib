@@ -19,6 +19,7 @@ use crate::input_observers::*;
 
 /// Event debugging struct.
 /// Contains the last key and mouse events.
+#[derive(Debug)]
 pub struct TuiDebug {
     last_key_event: KeyEvent,
     last_mouse_event: MouseEvent,
@@ -27,7 +28,7 @@ pub struct TuiDebug {
 }
 
 /// Describes one key event.
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub struct KeyEvent {
     /// Represents event type: key presses, releases or system hotkeys.
     pub code: u8,
@@ -40,7 +41,7 @@ pub trait KeyEventObserver: Sync + Send {
 }
 
 /// Describes one mouse event.
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub struct MouseEvent {
     /// Represents event type: mouse button presses and releases, movements, drags and scrolling.
     pub code: u8,
