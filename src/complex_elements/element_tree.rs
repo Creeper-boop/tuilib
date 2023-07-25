@@ -2,9 +2,12 @@
 
 use crate::tui;
 use crate::tui::force_colors;
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Tui element that renders elements in a tree like fashion.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug)]
 pub struct ElementTree {
     /// X position.
@@ -34,7 +37,8 @@ pub struct ElementTree {
 }
 
 /// Defines an icon.
-#[derive(Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Copy, Clone)]
 pub struct Icon {
     /// Icon color.
     pub color: Option<tui::Color>,
@@ -54,7 +58,8 @@ impl Icon {
 }
 
 /// Line set used for element trees.
-#[derive(Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Copy, Clone)]
 pub struct LineSet {
     /// Character for the top entry.
     top_entry: char,
@@ -73,6 +78,7 @@ pub struct LineSet {
 }
 
 /// Defines a part of the element tree, either an element or a folder with nested parts.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug)]
 pub enum Part {
     #[allow(missing_docs)]
@@ -82,6 +88,7 @@ pub enum Part {
 }
 
 /// Defines an element tree element.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug)]
 pub struct Element {
     /// Element name.
@@ -91,6 +98,7 @@ pub struct Element {
 }
 
 /// Defines an element tree folder.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug)]
 pub struct Folder {
     /// Element name.

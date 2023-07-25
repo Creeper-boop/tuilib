@@ -1,9 +1,12 @@
 //! Defines simple tui elements.
 
 use crate::tui::{force_colors, Color, Element, LineSet};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 /// Tui element that renders text.
-#[derive(Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub struct Text {
     /// X position.
     pub x: u16,
@@ -44,7 +47,8 @@ impl Element for Text {
 }
 
 /// Tui element that renders a box outline around an area.
-#[derive(Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub struct Box {
     /// X position.
     pub x: u16,

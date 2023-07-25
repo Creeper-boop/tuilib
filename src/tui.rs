@@ -1,9 +1,10 @@
 //! Tui handling module.
 use crate::input::{KeyEvent, KeyEventObserver, MouseEvent, MouseEventObserver};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 use std::io;
 use std::io::Write;
 use std::sync::{Arc, Mutex};
-
 type MutexElement = Arc<Mutex<dyn Element>>;
 type MutexReactive = Arc<Mutex<dyn Reactive>>;
 
@@ -90,6 +91,7 @@ impl MouseEventObserver for TuiMouseObserver {
 }
 
 /// Defines an rgb color.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub struct Color {
     /// Red value.
@@ -128,7 +130,8 @@ pub fn force_colors(fg_color: Option<Color>, bg_color: Option<Color>) -> String 
 }
 
 /// Defines a pallet of line drawing characters.
-#[derive(Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Copy, Clone)]
 pub struct LineSet {
     /// Character for straight horizontal line.
     pub horizontal: char,

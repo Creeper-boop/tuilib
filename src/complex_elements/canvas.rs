@@ -2,9 +2,12 @@
 
 use crate::tui;
 use crate::tui::{bg_color_to_string, fg_color_to_string, force_colors};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
 
 /// Tui element that renders elements on a limited plane.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug)]
 pub struct Canvas {
     /// X position.
@@ -28,6 +31,7 @@ pub struct Canvas {
 }
 
 /// Element rendered on a canvas
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, PartialEq, Debug)]
 pub struct Element {
     /// X position.
