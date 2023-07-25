@@ -8,7 +8,7 @@ use std::sync::{Arc, Mutex};
 
 /// Tui element that renders elements on a limited plane.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Canvas {
     /// X position.
     pub x: u16,
