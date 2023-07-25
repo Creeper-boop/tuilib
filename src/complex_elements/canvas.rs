@@ -38,6 +38,8 @@ pub struct Element {
     pub x: isize,
     /// Y position.
     pub y: isize,
+    /// Z position/printing priority
+    pub z: u16,
     /// Element look as String.
     ///
     /// For multi lined elements use \n as indication of a new line.
@@ -51,7 +53,15 @@ pub struct Element {
 impl tui::Element for Canvas {
     fn print(&self) {
         let mut canvas = vec![vec![" ".to_string(); self.width as usize]; self.height as usize];
-        for element in self.elements.clone() {
+        let mut sorted_elements = self.elements.clone();
+        sorted_elements.sort_by(|a, b| {
+            a.lock()
+                .unwrap()
+                .z
+                .partial_cmp(&b.lock().unwrap().z)
+                .unwrap()
+        });
+        for element in sorted_elements {
             let mut element_grid: Vec<Vec<char>> = Vec::new();
             let element_lock = element.lock().unwrap();
             for row in element_lock.look.split('\n') {
