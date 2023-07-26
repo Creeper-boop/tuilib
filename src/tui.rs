@@ -154,7 +154,9 @@ pub trait TUI {
         let mut sorted_elements = self.get_elements();
         sorted_elements.sort_by(|a, b| a.lock().unwrap().get_z().cmp(&b.lock().unwrap().get_z()));
         for element in sorted_elements {
-            element.lock().unwrap().print();
+            let element_lock = element.lock().unwrap();
+            element_lock.print();
+            drop(element_lock);
             let _ = io::stdout().lock().flush();
         }
     }
