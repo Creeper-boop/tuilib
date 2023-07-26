@@ -55,11 +55,9 @@ impl tui::Element for Canvas {
         let mut canvas = vec![vec![" ".to_string(); self.width as usize]; self.height as usize];
         let mut sorted_elements = self.elements.clone();
         sorted_elements.sort_by(|a, b| {
-            a.lock()
-                .unwrap()
-                .z
-                .partial_cmp(&b.lock().unwrap().z)
-                .unwrap()
+            let a_z = a.lock().unwrap().z;
+            let b_z = b.lock().unwrap().z;
+            a_z.cmp(&b_z)
         });
         for element in sorted_elements {
             let mut element_grid: Vec<Vec<char>> = Vec::new();

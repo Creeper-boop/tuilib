@@ -152,7 +152,11 @@ pub trait TUI {
     /// Prints all elements.
     fn update(&self) {
         let mut sorted_elements = self.get_elements();
-        sorted_elements.sort_by(|a, b| a.lock().unwrap().get_z().cmp(&b.lock().unwrap().get_z()));
+        sorted_elements.sort_by(|a, b| {
+            let a_z = a.lock().unwrap().get_z();
+            let b_z = b.lock().unwrap().get_z();
+            a_z.cmp(b_z)
+        });
         for element in sorted_elements {
             let element_lock = element.lock().unwrap();
             element_lock.print();
