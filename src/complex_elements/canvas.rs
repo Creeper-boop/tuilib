@@ -73,6 +73,9 @@ impl tui::Element for Canvas {
                         if element_lock.x.saturating_add(x as isize) >= 0
                             && element_lock.x.saturating_add(x as isize) < self.width as isize
                         {
+                            let field = canvas[element_lock.y.saturating_add(y as isize) as usize]
+                                [element_lock.x.saturating_add(x as isize) as usize]
+                                .clone();
                             canvas[element_lock.y.saturating_add(y as isize) as usize]
                                 [element_lock.x.saturating_add(x as isize) as usize] =
                                 if let Some(color) = element_lock.fg_color {
@@ -81,19 +84,19 @@ impl tui::Element for Canvas {
                                     "".to_string()
                                 } + &if let Some(color) = element_lock.bg_color {
                                     bg_color_to_string(color)
+                                } else if field.contains("\x1b[48;") {
+                                    "\x1b[48;".to_string()
+                                        + field
+                                            .split_once("\x1b[48;")
+                                            .unwrap()
+                                            .1
+                                            .split_once(";bm")
+                                            .unwrap()
+                                            .0
+                                        + ";bm"
                                 } else {
                                     "".to_string()
-                                } + &*element_grid[y][x].to_string()
-                                    + &if let Some(color) = self.element_color {
-                                        fg_color_to_string(color)
-                                    } else {
-                                        "".to_string()
-                                    }
-                                    + &if let Some(color) = self.bg_color {
-                                        bg_color_to_string(color)
-                                    } else {
-                                        "".to_string()
-                                    };
+                                } + &*element_grid[y][x].to_string();
                         }
                     }
                 }
@@ -105,7 +108,20 @@ impl tui::Element for Canvas {
                 self.y + i as u16,
                 self.x,
                 force_colors(self.element_color, self.bg_color),
-                canvas[i].iter().map(|e| e.to_string()).collect::<String>()
+                canvas[i]
+                    .iter()
+                    .map(|e| e.to_string()
+                        + &if let Some(color) = self.element_color {
+                            fg_color_to_string(color)
+                        } else {
+                            "".to_string()
+                        }
+                        + &if let Some(color) = self.bg_color {
+                            bg_color_to_string(color)
+                        } else {
+                            "".to_string()
+                        })
+                    .collect::<String>()
             )
         }
     }
