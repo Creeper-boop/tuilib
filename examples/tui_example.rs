@@ -1,7 +1,7 @@
 use ctiui;
 use ctiui::colors::{GREY, ORANGE};
 use ctiui::complex_elements::element_tree::{
-    ElementTree, Folder, Part, CLOSED_FOLDER, OPEN_FOLDER, SIMPLE_SET,
+    Element, ElementTree, Folder, Icon, Part, CLOSED_FOLDER, OPEN_FOLDER, SIMPLE_SET,
 };
 use ctiui::elements;
 use ctiui::lines::LINES_HEAVY;
@@ -10,146 +10,86 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
+fn folder(name: String, is_open: bool, parts: Option<Vec<Part>>) -> Folder {
+    Folder {
+        name,
+        icon_closed_id: "closed".to_string(),
+        icon_open_id: "open".to_string(),
+        is_open,
+        children: if let Some(children) = parts {
+            children
+        } else {
+            Vec::new()
+        },
+    }
+}
+
+fn element(name: String) -> Element {
+    Element {
+        name,
+        icon_id: "element".to_string(),
+    }
+}
+
 fn main() {
     let tui = ctiui::tui::StaticTUI::new();
-    tui.lock()
-        .unwrap()
-        .elements
-        .push(Arc::new(Mutex::new(elements::Text {
-            x: 5,
-            y: 5,
-            z: 1,
-            text_color: None,
-            bg_color: None,
-            enabled: true,
-            text: "This is most definitely not\na textbox".to_string(),
-        })));
 
-    tui.lock()
-        .unwrap()
-        .elements
-        .push(Arc::new(Mutex::new(elements::Box {
-            x: 3,
-            y: 3,
-            z: 0,
-            width: 20,
-            height: 20,
-            line_color: Option::from(ORANGE),
-            bg_color: Option::from(GREY),
-            enabled: true,
-            line_set: LINES_HEAVY,
-        })));
+    let mut icon_map = HashMap::new();
+    icon_map.insert("closed".to_string(), CLOSED_FOLDER);
+    icon_map.insert("open".to_string(), OPEN_FOLDER);
+    icon_map.insert(
+        "element".to_string(),
+        Icon {
+            color: None,
+            char: '#',
+        },
+    );
 
-    tui.lock()
-        .unwrap()
-        .elements
-        .push(Arc::new(Mutex::new(elements::Box {
-            x: 5,
-            y: 5,
-            z: 2,
-            width: 3,
-            height: 3,
-            line_color: None,
-            bg_color: None,
-            enabled: true,
-            line_set: LINES_HEAVY,
-        })));
-
-    tui.lock()
-        .unwrap()
-        .elements
-        .push(Arc::new(Mutex::new(ElementTree {
-            x: 40,
-            y: 1,
-            z: 3,
-            width: 0,
-            height: 8,
-            icon_map: HashMap::from([
-                ("closed".to_string(), CLOSED_FOLDER),
-                ("open".to_string(), OPEN_FOLDER),
+    let element_tree = ElementTree {
+        x: 10,
+        y: 5,
+        z: 0,
+        width: 20,
+        height: 10,
+        icon_map,
+        line_set: SIMPLE_SET,
+        elements: folder(
+            "main".to_string(),
+            true,
+            Some(vec![
+                Part::Folder(folder("images".to_string(), false, None)),
+                Part::Element(element("text_file.txt".to_string())),
+                Part::Folder(folder(
+                    "folder".to_string(),
+                    true,
+                    Some(vec![
+                        Part::Element(element("text_file.txt".to_string())),
+                        Part::Element(element("text_file.txt".to_string())),
+                    ]),
+                )),
+                Part::Element(element("text_file.txt".to_string())),
+                Part::Folder(folder(
+                    "folder".to_string(),
+                    true,
+                    Some(vec![
+                        Part::Element(element("text_file.txt".to_string())),
+                        Part::Element(element("text_file.txt".to_string())),
+                        Part::Element(element("text_file.txt".to_string())),
+                        Part::Element(element("text_file.txt".to_string())),
+                    ]),
+                )),
             ]),
-            line_set: SIMPLE_SET,
-            elements: Folder {
-                name: "".to_string(),
-                icon_closed_id: "closed".to_string(),
-                icon_open_id: "open".to_string(),
-                is_open: true,
-                children: vec![
-                    Part::Folder(Folder {
-                        name: "asd".to_string(),
-                        icon_closed_id: "closed".to_string(),
-                        icon_open_id: "open".to_string(),
-                        is_open: true,
-                        children: vec![Part::Folder(Folder {
-                            name: "asd".to_string(),
-                            icon_closed_id: "closed".to_string(),
-                            icon_open_id: "open".to_string(),
-                            is_open: true,
-                            children: vec![Part::Folder(Folder {
-                                name: "asd".to_string(),
-                                icon_closed_id: "closed".to_string(),
-                                icon_open_id: "open".to_string(),
-                                is_open: true,
-                                children: vec![Part::Folder(Folder {
-                                    name: "asd".to_string(),
-                                    icon_closed_id: "closed".to_string(),
-                                    icon_open_id: "open".to_string(),
-                                    is_open: true,
-                                    children: vec![Part::Folder(Folder {
-                                        name: "asd".to_string(),
-                                        icon_closed_id: "closed".to_string(),
-                                        icon_open_id: "open".to_string(),
-                                        is_open: true,
-                                        children: vec![Part::Folder(Folder {
-                                            name: "asd".to_string(),
-                                            icon_closed_id: "closed".to_string(),
-                                            icon_open_id: "open".to_string(),
-                                            is_open: true,
-                                            children: vec![Part::Folder(Folder {
-                                                name: "asd".to_string(),
-                                                icon_closed_id: "closed".to_string(),
-                                                icon_open_id: "open".to_string(),
-                                                is_open: true,
-                                                children: vec![Part::Folder(Folder {
-                                                    name: "asd".to_string(),
-                                                    icon_closed_id: "closed".to_string(),
-                                                    icon_open_id: "open".to_string(),
-                                                    is_open: true,
-                                                    children: vec![Part::Folder(Folder {
-                                                        name: "asd".to_string(),
-                                                        icon_closed_id: "closed".to_string(),
-                                                        icon_open_id: "open".to_string(),
-                                                        is_open: true,
-                                                        children: vec![Part::Folder(Folder {
-                                                            name: "asd".to_string(),
-                                                            icon_closed_id: "closed".to_string(),
-                                                            icon_open_id: "open".to_string(),
-                                                            is_open: true,
-                                                            children: vec![],
-                                                        })],
-                                                    })],
-                                                })],
-                                            })],
-                                        })],
-                                    })],
-                                })],
-                            })],
-                        })],
-                    }),
-                    Part::Folder(Folder {
-                        name: "asd".to_string(),
-                        icon_closed_id: "closed".to_string(),
-                        icon_open_id: "open".to_string(),
-                        is_open: false,
-                        children: vec![],
-                    }),
-                ],
-            },
-            element_color: None,
-            line_color: None,
-            bg_color: None,
-            enabled: true,
-        })));
+        ),
+        element_color: Some(ORANGE),
+        line_color: None,
+        bg_color: Some(GREY),
+        enabled: true,
+    };
+
+    tui.lock()
+        .unwrap()
+        .elements
+        .push(Arc::new(Mutex::new(element_tree)));
 
     let mut input = ctiui::input::Input::new(true);
     loop {
