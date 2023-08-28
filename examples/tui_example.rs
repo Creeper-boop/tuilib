@@ -1,11 +1,11 @@
-use ctiui;
-use ctiui::colors::{GREY, ORANGE};
-use ctiui::complex_elements::element_tree::{
+use charflow;
+use charflow::colors::{GREY, ORANGE};
+use charflow::complex_elements::element_tree::{
     Element, ElementTree, Folder, Icon, Part, CLOSED_FOLDER, OPEN_FOLDER, SIMPLE_SET,
 };
-use ctiui::elements;
-use ctiui::lines::LINES_HEAVY;
-use ctiui::tui::TUI;
+use charflow::elements;
+use charflow::lines::LINES_HEAVY;
+use charflow::tui::TUI;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
@@ -50,7 +50,7 @@ fn main() {
         y: 5,
         z: 0,
         width: 20,
-        height: 10,
+        height: 15,
         icon_map,
         line_set: SIMPLE_SET,
         elements: folder(
