@@ -4,8 +4,9 @@ use charflow::complex_elements::element_tree::{
     Element, ElementTree, Folder, Icon, Part, CLOSED_FOLDER, OPEN_FOLDER, SIMPLE_SET,
 };
 use charflow::elements;
+use charflow::input::Input;
 use charflow::lines::LINES_HEAVY;
-use charflow::tui::TUI;
+use charflow::tui::{StaticTUI, TUI};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
@@ -32,7 +33,7 @@ fn element(name: String) -> Element {
 }
 
 fn main() {
-    let tui = ctiui::tui::StaticTUI::new();
+    let tui = StaticTUI::new();
 
     let mut icon_map = HashMap::new();
     icon_map.insert("closed".to_string(), CLOSED_FOLDER);
@@ -91,7 +92,24 @@ fn main() {
         .elements
         .push(Arc::new(Mutex::new(element_tree)));
 
-    let mut input = ctiui::input::Input::new(true);
+    let text_box = elements::TextBox {
+        x: 35,
+        y: 5,
+        z: 0,
+        width: 20,
+        height: 15,
+        fg_color: Some(ORANGE),
+        bg_color: Some(GREY),
+        enabled: true,
+        text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sed lorem sit amet elit ullamcorper gravida ut vitae dolor. Cras.".to_string()
+    };
+
+    tui.lock()
+        .unwrap()
+        .elements
+        .push(Arc::new(Mutex::new(text_box)));
+
+    let mut input = Input::new(true);
     loop {
         tui.lock().unwrap().update();
         input.update(Duration::from_millis(10));
