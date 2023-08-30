@@ -23,8 +23,17 @@ use crate::input_observers::*;
 pub struct TuiDebug {
     last_key_event: KeyEvent,
     last_mouse_event: MouseEvent,
+    last_mouse_readout: [u8; 3],
     width: u16,
     height: u16,
+}
+
+/// Enum that describes an event.
+pub enum Event {
+    /// Event enum containing a KeyEvent.
+    KeyEvent(KeyEvent),
+    /// Event enum containing a MouseEvent.
+    MouseEvent(MouseEvent),
 }
 
 /// Describes one key event.
@@ -141,6 +150,7 @@ impl Input {
                         x: 0,
                         y: 0,
                     },
+                    last_mouse_readout: [0u8; 3],
                     width,
                     height,
                 })
@@ -201,25 +211,34 @@ impl Input {
     /// Handles input events.
     pub fn handle_input_events(&mut self, input_timeout: Duration) {
         while let Some(input) = self.input_rx.recv_timeout(input_timeout).ok() {
-            if input[0] == MOUSE {
+            let mut mouse = [0u8; 3];
+            if input[0] == MOUSE_EVENT_START {
+                mouse[0] = self
+                    .input_rx
+                    .recv_timeout(Duration::from_millis(1))
+                    .unwrap_or([0u8])[0]
+                    .clone();
+                mouse[1] = self
+                    .input_rx
+                    .recv_timeout(Duration::from_millis(1))
+                    .unwrap_or([0u8])[0]
+                    .clone()
+                    .saturating_sub(32u8);
+                mouse[2] = self
+                    .input_rx
+                    .recv_timeout(Duration::from_millis(1))
+                    .unwrap_or([0u8])[0]
+                    .clone()
+                    .saturating_sub(32u8);
+                if self.debug.is_some() {
+                    self.debug.as_mut().unwrap().last_mouse_readout = mouse.clone();
+                }
+            }
+            if mouse[0] != 0 {
                 let event = MouseEvent {
-                    code: self
-                        .input_rx
-                        .recv_timeout(Duration::from_millis(1))
-                        .expect("Mouse read error!")[0]
-                        .clone(),
-                    x: self
-                        .input_rx
-                        .recv_timeout(Duration::from_millis(1))
-                        .expect("Mouse read error!")[0]
-                        .clone()
-                        - 32u8,
-                    y: self
-                        .input_rx
-                        .recv_timeout(Duration::from_millis(1))
-                        .expect("Mouse read error!")[0]
-                        .clone()
-                        - 32u8,
+                    code: mouse[0],
+                    x: mouse[1],
+                    y: mouse[2],
                 };
                 if self.debug.is_some() {
                     self.debug.as_mut().unwrap().last_mouse_event = event.clone();
@@ -247,7 +266,7 @@ impl Input {
             return;
         }
         print!(
-            "\x1b[{}Hw:{} h:{} key:{} mouse:{} x:{} y:{}\x1b[K",
+            "\x1b[{}Hw:{} h:{} key:{} mouse:{} x:{} y:{} readout:{:?}\x1b[K",
             self.debug.as_ref().unwrap().height,
             self.debug.as_ref().unwrap().width,
             self.debug.as_ref().unwrap().height,
@@ -255,6 +274,7 @@ impl Input {
             self.debug.as_ref().unwrap().last_mouse_event.code,
             self.debug.as_ref().unwrap().last_mouse_event.x,
             self.debug.as_ref().unwrap().last_mouse_event.y,
+            self.debug.as_ref().unwrap().last_mouse_readout,
         );
         let _ = io::stdout().lock().flush();
     }

@@ -76,9 +76,9 @@ impl MouseEventObserver for TuiMouseObserver {
             let event_x = data.x as u16;
             let event_y = data.y as u16;
             if event_x >= element_lock.get_x()
-                && event_x <= element_lock.get_x() + element_lock.get_width()
+                && event_x < element_lock.get_x() + element_lock.get_width()
                 && event_y >= element_lock.get_y()
-                && event_y <= element_lock.get_y() + element_lock.get_height()
+                && event_y < element_lock.get_y() + element_lock.get_height()
             {
                 element_lock.mouse(MouseEvent {
                     code: data.code,
