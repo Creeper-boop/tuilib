@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use crate::{
-    input::{Event, KeyEvent},
+    input::Event,
     tui::{force_colors, Color, Element, LineSet, Reactive},
 };
 #[cfg(feature = "serde")]
@@ -197,7 +197,6 @@ impl Element for TextBox {
 }
 
 /// Tui element that defines a simple interactable element.
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 pub struct Interactable {
     /// X position.
