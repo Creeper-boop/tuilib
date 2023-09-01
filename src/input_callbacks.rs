@@ -27,6 +27,8 @@ pub const MOUSE_EVENT_END: u8 = 91;
 pub const KILL: u8 = 3;
 /// event code for ctrl + l
 pub const RELOAD: u8 = 12;
+// action keys
+pub const ENTER: u8 = 13;
 // uppercase letters
 pub const UPPERCASE_A: u8 = 65;
 pub const UPPERCASE_B: u8 = 66;

@@ -30,9 +30,9 @@ pub struct TuiDebug {
 
 /// Enum that describes an event.
 pub enum Event {
-    /// Event enum containing a KeyEvent.
+    /// Event containing a KeyEvent.
     KeyEvent(KeyEvent),
-    /// Event enum containing a MouseEvent.
+    /// Event containing a MouseEvent.
     MouseEvent(MouseEvent),
 }
 

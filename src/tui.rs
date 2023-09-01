@@ -14,6 +14,8 @@ pub trait Element: Sync + Send {
     fn print(&self);
     /// Gets the z pos.
     fn get_z(&self) -> u16;
+    /// Visibility.
+    fn get_visible(&self) -> bool;
 }
 
 /// Used for reactive tui elements.
@@ -30,6 +32,10 @@ pub trait Reactive: Sync + Send {
     fn get_width(&self) -> u16;
     /// Gets height.
     fn get_height(&self) -> u16;
+    /// Sets Selection.
+    fn set_selected(&mut self, selected: bool);
+    /// Actionability. (if the element reacts to actions)
+    fn get_enabled(&self) -> bool;
 }
 
 /// Keyboard observer for element event handling.
@@ -41,21 +47,30 @@ pub struct TuiKeyObserver {
 impl KeyEventObserver for TuiKeyObserver {
     fn handle_key_event(&self, data: KeyEvent) {
         let mut tui_lock = self.tui.lock().unwrap();
-        if tui_lock.reactive_elements.len() > 0 {
+        if tui_lock.elements.len() > 0 {
+            for element in tui_lock.reactive_elements.clone() {
+                element.lock().unwrap().set_selected(false);
+            }
+            let reactive_elements: Vec<MutexReactive> = tui_lock
+                .reactive_elements
+                .iter()
+                .filter(|e| e.lock().unwrap().get_enabled())
+                .map(|e| e.clone())
+                .collect();
             if data.code == tui_lock.selection_next {
                 tui_lock.selected_element += 1;
-                tui_lock.selected_element %= tui_lock.reactive_elements.len();
+                tui_lock.selected_element %= reactive_elements.len();
             } else if data.code == tui_lock.selection_previous {
                 tui_lock.selected_element += tui_lock.reactive_elements.len() - 1;
                 tui_lock.selected_element %= tui_lock.reactive_elements.len();
             }
-            tui_lock
-                .reactive_elements
-                .get(tui_lock.selected_element % tui_lock.reactive_elements.len())
+            let mut selected_element_lock = reactive_elements
+                .get(tui_lock.selected_element % reactive_elements.len())
                 .unwrap()
                 .lock()
-                .unwrap()
-                .keyboard(data);
+                .unwrap();
+            selected_element_lock.keyboard(data);
+            selected_element_lock.set_selected(true);
         } else {
             tui_lock.selected_element = 0
         }
@@ -159,7 +174,9 @@ pub trait TUI {
         });
         for element in sorted_elements {
             let element_lock = element.lock().unwrap();
-            element_lock.print();
+            if element_lock.get_visible() {
+                element_lock.print();
+            }
             drop(element_lock);
             let _ = io::stdout().lock().flush();
         }

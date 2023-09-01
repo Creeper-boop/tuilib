@@ -32,8 +32,8 @@ pub struct ElementTree {
     pub line_color: Option<tui::Color>,
     /// Background color.
     pub bg_color: Option<tui::Color>,
-    /// Element visibility. <https://docs.unity3d.com/ScriptReference/Behaviour-enabled.html>
-    pub enabled: bool,
+    /// Element visibility.
+    pub visible: bool,
 }
 
 /// Defines an icon.
@@ -239,6 +239,10 @@ impl tui::Element for ElementTree {
 
     fn get_z(&self) -> u16 {
         self.z
+    }
+
+    fn get_visible(&self) -> bool {
+        self.visible
     }
 }
 

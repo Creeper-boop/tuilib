@@ -26,8 +26,8 @@ pub struct Canvas {
     pub element_color: Option<tui::Color>,
     /// Background fill color.
     pub bg_color: Option<tui::Color>,
-    /// Element visibility. <https://docs.unity3d.com/ScriptReference/Behaviour-enabled.html>
-    pub enabled: bool,
+    /// Element visibility.
+    pub visible: bool,
 }
 
 /// Element rendered on a canvas
@@ -128,5 +128,9 @@ impl tui::Element for Canvas {
 
     fn get_z(&self) -> u16 {
         self.z
+    }
+
+    fn get_visible(&self) -> bool {
+        self.visible
     }
 }
