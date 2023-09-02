@@ -47,7 +47,7 @@ pub struct Group {
     /// All elements that are part of the group.
     pub elements: Vec<MutexElement>,
     /// All reactive elements that are part of the group.
-    pub reactive: Vec<MutexReactive>,
+    pub reactive_elements: Vec<MutexReactive>,
 }
 
 impl Group {
@@ -60,7 +60,7 @@ impl Group {
 
     /// Set actionability for all elements within a group.
     pub fn set_enabled(&self, enabled: bool) {
-        for element in &self.reactive {
+        for element in &self.reactive_elements {
             element.lock().unwrap().set_enabled(enabled);
         }
     }
