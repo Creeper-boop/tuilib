@@ -29,7 +29,7 @@ pub const KILL: u8 = 3;
 pub const RELOAD: u8 = 12;
 // action keys
 pub const ENTER: u8 = 13;
-// uppercase letters
+// uppercase letter keycoeds on a german qwertz keyboard
 pub const UPPERCASE_A: u8 = 65;
 pub const UPPERCASE_B: u8 = 66;
 pub const UPPERCASE_C: u8 = 67;
@@ -56,3 +56,30 @@ pub const UPPERCASE_W: u8 = 87;
 pub const UPPERCASE_X: u8 = 88;
 pub const UPPERCASE_Y: u8 = 89;
 pub const UPPERCASE_Z: u8 = 90;
+// lowercase letter keycodes on a german quertz keyboard
+pub const LOWERCASE_A: u8 = 97;
+pub const LOWERCASE_B: u8 = 98;
+pub const LOWERCASE_C: u8 = 99;
+pub const LOWERCASE_D: u8 = 100;
+pub const LOWERCASE_E: u8 = 101;
+pub const LOWERCASE_F: u8 = 102;
+pub const LOWERCASE_G: u8 = 103;
+pub const LOWERCASE_H: u8 = 104;
+pub const LOWERCASE_I: u8 = 105;
+pub const LOWERCASE_J: u8 = 106;
+pub const LOWERCASE_K: u8 = 107;
+pub const LOWERCASE_L: u8 = 108;
+pub const LOWERCASE_M: u8 = 109;
+pub const LOWERCASE_N: u8 = 110;
+pub const LOWERCASE_O: u8 = 111;
+pub const LOWERCASE_P: u8 = 112;
+pub const LOWERCASE_Q: u8 = 113;
+pub const LOWERCASE_R: u8 = 114;
+pub const LOWERCASE_S: u8 = 115;
+pub const LOWERCASE_T: u8 = 116;
+pub const LOWERCASE_U: u8 = 117;
+pub const LOWERCASE_V: u8 = 118;
+pub const LOWERCASE_W: u8 = 119;
+pub const LOWERCASE_X: u8 = 120;
+pub const LOWERCASE_Y: u8 = 121;
+pub const LOWERCASE_Z: u8 = 122;
