@@ -14,8 +14,10 @@ pub trait Element: Sync + Send {
     fn print(&self);
     /// Gets the z pos.
     fn get_z(&self) -> u16;
-    /// Visibility.
+    /// Get visibility.
     fn get_visible(&self) -> bool;
+    /// Set visibility.
+    fn set_visible(&mut self, visible: bool);
 }
 
 /// Used for reactive tui elements.
@@ -34,8 +36,34 @@ pub trait Reactive: Sync + Send {
     fn get_height(&self) -> u16;
     /// Sets Selection.
     fn set_selected(&mut self, selected: bool);
-    /// Actionability. (if the element reacts to actions)
+    /// Get actionability. (if the element reacts to actions)
     fn get_enabled(&self) -> bool;
+    /// Set actionability.
+    fn set_enabled(&mut self, enabled: bool);
+}
+
+/// Element and reactive element group.
+pub struct Group {
+    /// All elements that are part of the group.
+    pub elements: Vec<MutexElement>,
+    /// All reactive elements that are part of the group.
+    pub reactive: Vec<MutexReactive>,
+}
+
+impl Group {
+    /// Set visibility for all elements within a group.
+    pub fn set_visibility(&self, visibility: bool) {
+        for element in &self.elements {
+            element.lock().unwrap().set_visible(visibility);
+        }
+    }
+
+    /// Set actionability for all elements within a group.
+    pub fn set_enabled(&self, enabled: bool) {
+        for element in &self.reactive {
+            element.lock().unwrap().set_enabled(enabled);
+        }
+    }
 }
 
 /// Keyboard observer for element event handling.

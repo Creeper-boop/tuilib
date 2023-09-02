@@ -108,6 +108,10 @@ impl Element for Text {
     fn get_visible(&self) -> bool {
         self.visible
     }
+
+    fn set_visible(&mut self, visible: bool) {
+        self.visible = visible;
+    }
 }
 
 /// Tui element that renders a box outline around an area.
@@ -178,6 +182,10 @@ impl Element for Box {
     fn get_visible(&self) -> bool {
         self.visible
     }
+
+    fn set_visible(&mut self, visible: bool) {
+        self.visible = visible;
+    }
 }
 
 /// Tui element that renders wrapping text inside a box.
@@ -223,6 +231,10 @@ impl Element for TextBox {
 
     fn get_visible(&self) -> bool {
         self.visible
+    }
+
+    fn set_visible(&mut self, visible: bool) {
+        self.visible = visible;
     }
 }
 
@@ -276,6 +288,10 @@ impl Reactive for Interactable {
 
     fn get_enabled(&self) -> bool {
         self.enabled
+    }
+
+    fn set_enabled(&mut self, enabled: bool) {
+        self.enabled = enabled;
     }
 }
 
@@ -344,6 +360,10 @@ impl Reactive for Button {
     fn get_enabled(&self) -> bool {
         self.enabled
     }
+
+    fn set_enabled(&mut self, enabled: bool) {
+        self.enabled = enabled;
+    }
 }
 
 impl Element for Button {
@@ -377,5 +397,9 @@ impl Element for Button {
 
     fn get_visible(&self) -> bool {
         self.visible
+    }
+
+    fn set_visible(&mut self, visible: bool) {
+        self.visible = visible;
     }
 }

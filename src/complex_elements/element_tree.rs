@@ -244,6 +244,10 @@ impl tui::Element for ElementTree {
     fn get_visible(&self) -> bool {
         self.visible
     }
+
+    fn set_visible(&mut self, visible: bool) {
+        self.visible = visible;
+    }
 }
 
 #[allow(missing_docs)]
