@@ -47,16 +47,16 @@ pub struct TuiKeyObserver {
 impl KeyEventObserver for TuiKeyObserver {
     fn handle_key_event(&self, data: KeyEvent) {
         let mut tui_lock = self.tui.lock().unwrap();
-        if tui_lock.elements.len() > 0 {
+        let reactive_elements: Vec<MutexReactive> = tui_lock
+            .reactive_elements
+            .iter()
+            .filter(|e| e.lock().unwrap().get_enabled())
+            .map(|e| e.clone())
+            .collect();
+        if reactive_elements.len() > 0 {
             for element in tui_lock.reactive_elements.clone() {
                 element.lock().unwrap().set_selected(false);
             }
-            let reactive_elements: Vec<MutexReactive> = tui_lock
-                .reactive_elements
-                .iter()
-                .filter(|e| e.lock().unwrap().get_enabled())
-                .map(|e| e.clone())
-                .collect();
             if data.code == tui_lock.selection_next {
                 tui_lock.selected_element += 1;
                 tui_lock.selected_element %= reactive_elements.len();
