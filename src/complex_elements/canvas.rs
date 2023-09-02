@@ -1,6 +1,7 @@
 //! Defines canvas and all of its requirements.
 
-use crate::tui;
+use crate::input::{KeyAction, MouseAction};
+use crate::tui::{self, Reactive};
 use crate::tui::{bg_color_to_string, fg_color_to_string, force_colors};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -8,7 +9,7 @@ use std::sync::{Arc, Mutex};
 
 /// Tui element that renders elements on a limited plane.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Canvas {
     /// X position.
     pub x: u16,
@@ -26,8 +27,18 @@ pub struct Canvas {
     pub element_color: Option<tui::Color>,
     /// Background fill color.
     pub bg_color: Option<tui::Color>,
+    /// Action called upon mouse interaction.
+    #[cfg_attr(feature = "serde", serde(skip_deserializing, skip_serializing))]
+    pub mouse_action: MouseAction,
+    /// Action called upon key interaction.
+    #[cfg_attr(feature = "serde", serde(skip_deserializing, skip_serializing))]
+    pub keyboard_action: KeyAction,
     /// Element visibility.
     pub visible: bool,
+    /// Element selected.
+    pub selected: bool,
+    /// Element functionality.
+    pub enabled: bool,
 }
 
 /// Element rendered on a canvas
@@ -136,5 +147,43 @@ impl tui::Element for Canvas {
 
     fn set_visible(&mut self, visible: bool) {
         self.visible = visible;
+    }
+}
+
+impl Reactive for Canvas {
+    fn keyboard(&self, data: crate::input::KeyEvent) {
+        (self.keyboard_action.0)(data)
+    }
+
+    fn mouse(&self, data: crate::input::MouseEvent) {
+        (self.mouse_action.0)(data)
+    }
+
+    fn get_x(&self) -> u16 {
+        self.x
+    }
+
+    fn get_y(&self) -> u16 {
+        self.y
+    }
+
+    fn get_width(&self) -> u16 {
+        self.width
+    }
+
+    fn get_height(&self) -> u16 {
+        self.height
+    }
+
+    fn set_selected(&mut self, selected: bool) {
+        self.selected = selected;
+    }
+
+    fn get_enabled(&self) -> bool {
+        self.enabled
+    }
+
+    fn set_enabled(&mut self, enabled: bool) {
+        self.enabled = enabled;
     }
 }

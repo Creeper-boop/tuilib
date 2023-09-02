@@ -36,6 +36,36 @@ pub enum Event {
     MouseEvent(MouseEvent),
 }
 
+#[derive(Clone)]
+/// Wrapper type for Fn(KeyEvent) callbacks.
+pub struct KeyAction(pub Arc<dyn Fn(KeyEvent) + Send + Sync + 'static>);
+
+impl Default for KeyAction {
+    fn default() -> Self {
+        Self(Arc::new(move |_: KeyEvent| {}))
+    }
+}
+
+#[derive(Clone)]
+/// Wrapper type for Fn(MouseEvent) callbacks.
+pub struct MouseAction(pub Arc<dyn Fn(MouseEvent) + Send + Sync + 'static>);
+
+impl Default for MouseAction {
+    fn default() -> Self {
+        Self(Arc::new(move |_: MouseEvent| {}))
+    }
+}
+
+#[derive(Clone)]
+/// Wrapper type for Fn(Event) callbacks.
+pub struct Action(pub Arc<dyn Fn(Event) + Send + Sync + 'static>);
+
+impl Default for Action {
+    fn default() -> Self {
+        Self(Arc::new(move |_: Event| {}))
+    }
+}
+
 /// Describes one key event.
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub struct KeyEvent {

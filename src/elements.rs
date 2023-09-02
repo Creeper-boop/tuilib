@@ -1,9 +1,7 @@
 //! Defines simple tui elements.
 
-use std::sync::Arc;
-
 use crate::{
-    input::Event,
+    input::{Action, Event, KeyAction, MouseAction},
     tui::{force_colors, Color, Element, LineSet, Reactive},
 };
 #[cfg(feature = "serde")]
@@ -239,6 +237,7 @@ impl Element for TextBox {
 }
 
 /// Tui element that defines a simple interactable element.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 pub struct Interactable {
     /// X position.
@@ -249,8 +248,12 @@ pub struct Interactable {
     pub width: u16,
     /// Interactable height.
     pub height: u16,
-    /// Action called upon interaction.
-    pub action: Arc<dyn Fn(Event) + Send + Sync + 'static>,
+    /// Action called upon mouse interaction.
+    #[cfg_attr(feature = "serde", serde(skip_deserializing, skip_serializing))]
+    pub mouse_action: MouseAction,
+    /// Action called upon key interaction.
+    #[cfg_attr(feature = "serde", serde(skip_deserializing, skip_serializing))]
+    pub keyboard_action: KeyAction,
     /// Element selection.
     pub selected: bool,
     /// Element functonality.
@@ -259,11 +262,11 @@ pub struct Interactable {
 
 impl Reactive for Interactable {
     fn keyboard(&self, data: crate::input::KeyEvent) {
-        (self.action)(Event::KeyEvent(data))
+        (self.keyboard_action.0)(data)
     }
 
     fn mouse(&self, data: crate::input::MouseEvent) {
-        (self.action)(Event::MouseEvent(data))
+        (self.mouse_action.0)(data)
     }
 
     fn get_x(&self) -> u16 {
@@ -296,6 +299,7 @@ impl Reactive for Interactable {
 }
 
 /// Tui element that defines a simple Button.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 pub struct Button {
     /// X position.
@@ -317,7 +321,8 @@ pub struct Button {
     /// Background color.
     pub selected_bg_color: Option<Color>,
     /// Action called upon interaction.
-    pub action: Arc<dyn Fn(Event) + Send + Sync + 'static>,
+    #[cfg_attr(feature = "serde", serde(skip_deserializing, skip_serializing))]
+    pub action: Action,
     /// Element selection.
     pub selected: bool,
     /// Element functonality.
@@ -330,11 +335,11 @@ pub struct Button {
 
 impl Reactive for Button {
     fn keyboard(&self, data: crate::input::KeyEvent) {
-        (self.action)(Event::KeyEvent(data))
+        (self.action.0)(Event::KeyEvent(data))
     }
 
     fn mouse(&self, data: crate::input::MouseEvent) {
-        (self.action)(Event::MouseEvent(data))
+        (self.action.0)(Event::MouseEvent(data))
     }
 
     fn get_x(&self) -> u16 {
