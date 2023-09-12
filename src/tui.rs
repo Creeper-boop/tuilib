@@ -4,9 +4,9 @@ use crate::input::{KeyEvent, KeyEventObserver, MouseEvent, MouseEventObserver};
 use serde::{Deserialize, Serialize};
 use std::io;
 use std::io::Write;
-use std::sync::{Arc, Mutex};
-type MutexElement = Arc<Mutex<dyn Element>>;
-type MutexReactive = Arc<Mutex<dyn Reactive>>;
+use std::sync::{Arc, RwLock};
+type RwLockElement = Arc<RwLock<dyn Element>>;
+type RwLockReactive = Arc<RwLock<dyn Reactive>>;
 
 /// Used for all tui elements.
 pub trait Element: Sync + Send {
@@ -45,23 +45,23 @@ pub trait Reactive: Sync + Send {
 /// Element and reactive element group.
 pub struct Group {
     /// All elements that are part of the group.
-    pub elements: Vec<MutexElement>,
+    pub elements: Vec<RwLockElement>,
     /// All reactive elements that are part of the group.
-    pub reactive_elements: Vec<MutexReactive>,
+    pub reactive_elements: Vec<RwLockReactive>,
 }
 
 impl Group {
     /// Set visibility for all elements within a group.
     pub fn set_visibility(&self, visibility: bool) {
         for element in &self.elements {
-            element.lock().unwrap().set_visible(visibility);
+            element.write().unwrap().set_visible(visibility);
         }
     }
 
     /// Set actionability for all elements within a group.
     pub fn set_enabled(&self, enabled: bool) {
         for element in &self.reactive_elements {
-            element.lock().unwrap().set_enabled(enabled);
+            element.write().unwrap().set_enabled(enabled);
         }
     }
 }
@@ -69,38 +69,38 @@ impl Group {
 /// Keyboard observer for element event handling.
 pub struct TuiKeyObserver {
     /// Reference to the tui.
-    tui: Arc<Mutex<ReactiveTUI>>,
+    tui: Arc<RwLock<ReactiveTUI>>,
 }
 
 impl KeyEventObserver for TuiKeyObserver {
     fn handle_key_event(&self, data: KeyEvent) {
-        let mut tui_lock = self.tui.lock().unwrap();
-        let reactive_elements: Vec<MutexReactive> = tui_lock
+        let mut tui_write = self.tui.write().unwrap();
+        let reactive_elements: Vec<RwLockReactive> = tui_write
             .reactive_elements
             .iter()
-            .filter(|e| e.lock().unwrap().get_enabled())
+            .filter(|e| e.read().unwrap().get_enabled())
             .map(|e| e.clone())
             .collect();
         if reactive_elements.len() > 0 {
-            for element in tui_lock.reactive_elements.clone() {
-                element.lock().unwrap().set_selected(false);
+            for element in tui_write.reactive_elements.clone() {
+                element.write().unwrap().set_selected(false);
             }
-            if data.code == tui_lock.selection_next {
-                tui_lock.selected_element += 1;
-                tui_lock.selected_element %= reactive_elements.len();
-            } else if data.code == tui_lock.selection_previous {
-                tui_lock.selected_element += tui_lock.reactive_elements.len() - 1;
-                tui_lock.selected_element %= tui_lock.reactive_elements.len();
+            if data.code == tui_write.selection_next {
+                tui_write.selected_element += 1;
+                tui_write.selected_element %= reactive_elements.len();
+            } else if data.code == tui_write.selection_previous {
+                tui_write.selected_element += tui_write.reactive_elements.len() - 1;
+                tui_write.selected_element %= tui_write.reactive_elements.len();
             }
-            let mut selected_element_lock = reactive_elements
-                .get(tui_lock.selected_element % reactive_elements.len())
+            let mut selected_element_write = reactive_elements
+                .get(tui_write.selected_element % reactive_elements.len())
                 .unwrap()
-                .lock()
+                .write()
                 .unwrap();
-            selected_element_lock.keyboard(data);
-            selected_element_lock.set_selected(true);
+            selected_element_write.keyboard(data);
+            selected_element_write.set_selected(true);
         } else {
-            tui_lock.selected_element = 0
+            tui_write.selected_element = 0
         }
     }
 }
@@ -108,14 +108,14 @@ impl KeyEventObserver for TuiKeyObserver {
 /// Mouse observer for element event handling.
 pub struct TuiMouseObserver {
     /// Reference to the tui.
-    tui: Arc<Mutex<ReactiveTUI>>,
+    tui: Arc<RwLock<ReactiveTUI>>,
 }
 
 impl MouseEventObserver for TuiMouseObserver {
     fn handle_mouse_event(&self, data: MouseEvent) {
-        let tui_lock = self.tui.lock().unwrap();
-        for element in &tui_lock.reactive_elements {
-            let element_lock = element.lock().unwrap();
+        let tui_read = self.tui.read().unwrap();
+        for element in &tui_read.reactive_elements {
+            let element_lock = element.read().unwrap();
             let event_x = data.x as u16;
             let event_y = data.y as u16;
             if event_x >= element_lock.get_x()
@@ -196,12 +196,12 @@ pub trait TUI {
     fn update(&self) {
         let mut sorted_elements = self.get_elements();
         sorted_elements.sort_by(|a, b| {
-            let a_z = a.lock().unwrap().get_z();
-            let b_z = b.lock().unwrap().get_z();
+            let a_z = a.read().unwrap().get_z();
+            let b_z = b.read().unwrap().get_z();
             a_z.cmp(&b_z)
         });
         for element in sorted_elements {
-            let element_lock = element.lock().unwrap();
+            let element_lock = element.read().unwrap();
             if element_lock.get_visible() {
                 element_lock.print();
             }
@@ -211,15 +211,15 @@ pub trait TUI {
     }
 
     /// Returns a copy of it's elements.
-    fn get_elements(&self) -> Vec<MutexElement>;
+    fn get_elements(&self) -> Vec<RwLockElement>;
 }
 
 /// Contains main context of the reactive tui.
 pub struct ReactiveTUI {
     #[allow(missing_docs)]
-    pub elements: Vec<MutexElement>,
+    pub elements: Vec<RwLockElement>,
     /// Reactive element list to cycle through.
-    pub reactive_elements: Vec<MutexReactive>,
+    pub reactive_elements: Vec<RwLockReactive>,
     /// Index of the selected element.
     selected_element: usize,
     /// Key event used to increase the selection index.
@@ -234,11 +234,11 @@ impl ReactiveTUI {
         selection_next: u8,
         selection_previous: u8,
     ) -> (
-        Arc<Mutex<ReactiveTUI>>,
+        Arc<RwLock<ReactiveTUI>>,
         Arc<TuiKeyObserver>,
         Arc<TuiMouseObserver>,
     ) {
-        let tui = Arc::new(Mutex::new(ReactiveTUI {
+        let tui = Arc::new(RwLock::new(ReactiveTUI {
             elements: Vec::new(),
             reactive_elements: Vec::new(),
             selected_element: 0,
@@ -252,7 +252,7 @@ impl ReactiveTUI {
 }
 
 impl TUI for ReactiveTUI {
-    fn get_elements(&self) -> Vec<MutexElement> {
+    fn get_elements(&self) -> Vec<RwLockElement> {
         self.elements.clone()
     }
 }
@@ -260,13 +260,13 @@ impl TUI for ReactiveTUI {
 /// Contains main context of the static tui.
 pub struct StaticTUI {
     #[allow(missing_docs)]
-    pub elements: Vec<MutexElement>,
+    pub elements: Vec<RwLockElement>,
 }
 
 impl StaticTUI {
     #[allow(missing_docs)]
-    pub fn new() -> Arc<Mutex<StaticTUI>> {
-        let tui = Arc::new(Mutex::new(StaticTUI {
+    pub fn new() -> Arc<RwLock<StaticTUI>> {
+        let tui = Arc::new(RwLock::new(StaticTUI {
             elements: Vec::new(),
         }));
         tui
@@ -274,7 +274,7 @@ impl StaticTUI {
 }
 
 impl TUI for StaticTUI {
-    fn get_elements(&self) -> Vec<MutexElement> {
+    fn get_elements(&self) -> Vec<RwLockElement> {
         self.elements.clone()
     }
 }

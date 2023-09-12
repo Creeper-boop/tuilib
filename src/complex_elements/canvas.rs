@@ -5,7 +5,7 @@ use crate::tui::{self, Reactive};
 use crate::tui::{bg_color_to_string, fg_color_to_string, force_colors};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 
 /// Tui element that renders elements on a limited plane.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -22,7 +22,7 @@ pub struct Canvas {
     /// Canvas height.
     pub height: u16,
     /// Parts of the tree.
-    pub elements: Vec<Arc<Mutex<Element>>>,
+    pub elements: Vec<Arc<RwLock<Element>>>,
     /// Default element color.
     pub element_color: Option<tui::Color>,
     /// Background fill color.
@@ -66,34 +66,34 @@ impl tui::Element for Canvas {
         let mut canvas = vec![vec![" ".to_string(); self.width as usize]; self.height as usize];
         let mut sorted_elements = self.elements.clone();
         sorted_elements.sort_by(|a, b| {
-            let a_z = a.lock().unwrap().z;
-            let b_z = b.lock().unwrap().z;
+            let a_z = a.read().unwrap().z;
+            let b_z = b.read().unwrap().z;
             a_z.cmp(&b_z)
         });
         for element in sorted_elements {
             let mut element_grid: Vec<Vec<char>> = Vec::new();
-            let element_lock = element.lock().unwrap();
-            for row in element_lock.look.split('\n') {
+            let element_read = element.read().unwrap();
+            for row in element_read.look.split('\n') {
                 element_grid.push(row.chars().collect());
             }
             for y in 0..element_grid.len() {
-                if element_lock.y.saturating_add(y as isize) >= 0
-                    && element_lock.y.saturating_add(y as isize) < self.height as isize
+                if element_read.y.saturating_add(y as isize) >= 0
+                    && element_read.y.saturating_add(y as isize) < self.height as isize
                 {
                     for x in 0..element_grid[y].len() {
-                        if element_lock.x.saturating_add(x as isize) >= 0
-                            && element_lock.x.saturating_add(x as isize) < self.width as isize
+                        if element_read.x.saturating_add(x as isize) >= 0
+                            && element_read.x.saturating_add(x as isize) < self.width as isize
                         {
-                            let field = canvas[element_lock.y.saturating_add(y as isize) as usize]
-                                [element_lock.x.saturating_add(x as isize) as usize]
+                            let field = canvas[element_read.y.saturating_add(y as isize) as usize]
+                                [element_read.x.saturating_add(x as isize) as usize]
                                 .clone();
-                            canvas[element_lock.y.saturating_add(y as isize) as usize]
-                                [element_lock.x.saturating_add(x as isize) as usize] =
-                                if let Some(color) = element_lock.fg_color {
+                            canvas[element_read.y.saturating_add(y as isize) as usize]
+                                [element_read.x.saturating_add(x as isize) as usize] =
+                                if let Some(color) = element_read.fg_color {
                                     fg_color_to_string(color)
                                 } else {
                                     "".to_string()
-                                } + &if let Some(color) = element_lock.bg_color {
+                                } + &if let Some(color) = element_read.bg_color {
                                     bg_color_to_string(color)
                                 } else if field.contains("\x1b[48;") {
                                     "\x1b[48;".to_string()

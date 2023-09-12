@@ -9,7 +9,7 @@ use charflow::input_callbacks::{ENTER, MOUSE_LEFT_PRESS, UPPERCASE_J, UPPERCASE_
 use charflow::lines::LINES_HEAVY;
 use charflow::tui::{ReactiveTUI, TUI};
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
 fn folder(name: String, is_open: bool, parts: Option<Vec<Part>>) -> Folder {
@@ -89,10 +89,10 @@ fn main() {
         visible: true,
     };
 
-    tui.lock()
+    tui.write()
         .unwrap()
         .elements
-        .push(Arc::new(Mutex::new(element_tree)));
+        .push(Arc::new(RwLock::new(element_tree)));
     // End of element tree example.
 
     // Start of text box example.
@@ -108,10 +108,10 @@ fn main() {
         text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sed lorem sit amet elit ullamcorper gravida ut vitae dolor. Cras.".to_string()
     };
 
-    tui.lock()
+    tui.write()
         .unwrap()
         .elements
-        .push(Arc::new(Mutex::new(text_box)));
+        .push(Arc::new(RwLock::new(text_box)));
     // End of text box example.
 
     // Start of Button and box example.
@@ -127,9 +127,9 @@ fn main() {
         line_set: LINES_HEAVY,
     };
 
-    let line_box_mutex = Arc::new(Mutex::new(line_box));
+    let line_box_rw_lock = Arc::new(RwLock::new(line_box));
 
-    tui.lock().unwrap().elements.push(line_box_mutex.clone());
+    tui.write().unwrap().elements.push(line_box_rw_lock.clone());
 
     let button = elements::Button {
         x: 61,
@@ -142,22 +142,22 @@ fn main() {
             0: Arc::new(move |data: Event| match data {
                 Event::KeyEvent(key_event) => match key_event.code {
                     ENTER => {
-                        let mut line_box_mutex_lock = line_box_mutex.lock().unwrap();
-                        if line_box_mutex_lock.bg_color == Some(GREY) {
-                            line_box_mutex_lock.bg_color = Some(ORANGE_50)
+                        let mut line_box_write = line_box_rw_lock.write().unwrap();
+                        if line_box_write.bg_color == Some(GREY) {
+                            line_box_write.bg_color = Some(ORANGE_50)
                         } else {
-                            line_box_mutex_lock.bg_color = Some(GREY)
+                            line_box_write.bg_color = Some(GREY)
                         }
                     }
                     _ => {}
                 },
                 Event::MouseEvent(mouse_event) => match mouse_event.code {
                     MOUSE_LEFT_PRESS => {
-                        let mut line_box_mutex_lock = line_box_mutex.lock().unwrap();
-                        if line_box_mutex_lock.bg_color == Some(GREY) {
-                            line_box_mutex_lock.bg_color = Some(ORANGE_50)
+                        let mut line_box_write = line_box_rw_lock.write().unwrap();
+                        if line_box_write.bg_color == Some(GREY) {
+                            line_box_write.bg_color = Some(ORANGE_50)
                         } else {
-                            line_box_mutex_lock.bg_color = Some(GREY)
+                            line_box_write.bg_color = Some(GREY)
                         }
                     }
                     _ => {}
@@ -173,14 +173,14 @@ fn main() {
         text: "This is a button.".to_string(),
     };
 
-    let button_mutex = Arc::new(Mutex::new(button));
+    let button_rw_lock = Arc::new(RwLock::new(button));
 
-    tui.lock()
+    tui.write()
         .unwrap()
         .reactive_elements
-        .push(button_mutex.clone());
+        .push(button_rw_lock.clone());
 
-    tui.lock().unwrap().elements.push(button_mutex);
+    tui.write().unwrap().elements.push(button_rw_lock);
 
     let second_button = elements::Button {
         x: 61,
@@ -199,14 +199,14 @@ fn main() {
         text: "This is also a button!".to_string(),
     };
 
-    let second_button_mutex = Arc::new(Mutex::new(second_button));
+    let second_button_rw_lock = Arc::new(RwLock::new(second_button));
 
-    tui.lock()
+    tui.write()
         .unwrap()
         .reactive_elements
-        .push(second_button_mutex.clone());
+        .push(second_button_rw_lock.clone());
 
-    tui.lock().unwrap().elements.push(second_button_mutex);
+    tui.write().unwrap().elements.push(second_button_rw_lock);
 
     // End of Button and box example.
 
@@ -221,23 +221,23 @@ fn main() {
         text: "-0\n-1\n-2\n-3\n-4\n-5\n-6\n-7\n-8\n-9\n10\n11\n12\n13\n14".to_string(),
     };
 
-    tui.lock()
+    tui.write()
         .unwrap()
         .elements
-        .push(Arc::new(Mutex::new(text)));
+        .push(Arc::new(RwLock::new(text)));
     // End of text example.
 
     let mut input = Input::new(true);
 
-    input.key_observers.lock().unwrap().push(tui_key_observer);
+    input.key_observers.write().unwrap().push(tui_key_observer);
     input
         .mouse_observers
-        .lock()
+        .write()
         .unwrap()
         .push(tui_mouse_observer);
 
     loop {
-        tui.lock().unwrap().update();
+        tui.read().unwrap().update();
         input.update(Duration::from_millis(10));
     }
 }
