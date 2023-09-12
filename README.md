@@ -10,7 +10,6 @@
 
 </div>
 
-</br>
 <p>
 A lightweight rust terminal ui library for *nix systems
 </p>
