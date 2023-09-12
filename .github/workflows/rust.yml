@@ -19,7 +19,7 @@ jobs:
     - uses: Swatinem/rust-cache@v2
     - uses: actions-rs/install@v0.1
       with:
-        crate: cargo-audit
+        crate: cargo-all-features
         use-tool-cache: true
     - name: Check with features
       run: cargo check-all-features
