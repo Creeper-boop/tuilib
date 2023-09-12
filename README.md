@@ -1,6 +1,7 @@
-<div align="center">
 
-<h>charflow</h>
+<h1>charflow</h1>
+
+<div align="center">
 
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/Creeper-boop/tuilib/rust.yml)
 ![GitHub contributors](https://img.shields.io/github/contributors/Creeper-boop/tuilib)
