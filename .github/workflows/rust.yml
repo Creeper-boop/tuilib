@@ -21,6 +21,7 @@ jobs:
       uses: cargo-bins/cargo-binstall@install-cargo-binstall-1.0.0
     - name: Install cargo-all-features
       run: cargo binstall cargo-all-features -y
+    - run: source ~/.cargo/bin
     - name: Check with features
       run: cargo check-all-features
     - name: Check examples
