@@ -17,10 +17,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: Swatinem/rust-cache@v2
-    - name: Install cargo-binstall
-      uses: cargo-bins/cargo-binstall@install-cargo-binstall-1.0.0
-    - name: Install cargo-all-features
-      run: cargo binstall cargo-all-features -y
+    - uses: actions-rs/install@v0.1
+      with:
+        crate: cargo-all-features
+        use-tool-cache: true
     - name: Check with features
       run: cargo check-all-features
     - name: Check examples
