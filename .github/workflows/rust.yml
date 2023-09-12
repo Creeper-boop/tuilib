@@ -10,7 +10,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  check:
 
     runs-on: ubuntu-latest
 
@@ -20,7 +20,7 @@ jobs:
     - name: Install cargo-binstall
       uses: cargo-bins/cargo-binstall@install-cargo-binstall-1.0.0
     - name: Install cargo-all-features
-      run: cargo binstall cargo-all-features
+      run: cargo binstall cargo-all-features -y
     - name: Check with features
       run: cargo check-all-features
     - name: Check examples
