@@ -1,7 +1,6 @@
 //! Defines element tree and all of its requirements.
 
-use crate::tui;
-use crate::tui::force_colors;
+use crate::{fg_color_to_string, force_colors, tui, Color};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -27,11 +26,11 @@ pub struct ElementTree {
     /// Parts of the tree.
     pub elements: Folder,
     /// Element color.
-    pub element_color: Option<tui::Color>,
+    pub element_color: Option<Color>,
     /// Line color.
-    pub line_color: Option<tui::Color>,
+    pub line_color: Option<Color>,
     /// Background color.
-    pub bg_color: Option<tui::Color>,
+    pub bg_color: Option<Color>,
     /// Element visibility.
     pub visible: bool,
 }
@@ -41,7 +40,7 @@ pub struct ElementTree {
 #[derive(Debug, Copy, Clone)]
 pub struct Icon {
     /// Icon color.
-    pub color: Option<tui::Color>,
+    pub color: Option<Color>,
     /// Unicode symbol for the icon.
     pub char: char,
 }
@@ -50,7 +49,7 @@ impl Icon {
     /// Returns string representation of the icon.
     pub fn to_string(&self) -> String {
         (if let Some(color) = self.color {
-            tui::fg_color_to_string(color)
+            fg_color_to_string(color)
         } else {
             "".to_string()
         }) + &self.char.to_string()

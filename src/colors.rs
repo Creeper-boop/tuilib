@@ -1,6 +1,47 @@
-//! Color constants.
+//! Color constants and functions.
 #![allow(missing_docs)]
-use crate::tui::Color;
+
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+/// Defines an rgb color.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub struct Color {
+    /// Red value.
+    pub r: u8,
+    /// Green value.
+    pub g: u8,
+    /// Blue value.
+    pub b: u8,
+}
+
+/// Returns ansi escape sequence to set color as foreground.
+pub fn fg_color_to_string(color: Color) -> String {
+    format!("\x1b[38;2;{};{};{}m", color.r, color.g, color.b)
+}
+
+/// Returns ansi escape sequence to set color as background.
+pub fn bg_color_to_string(color: Color) -> String {
+    format!("\x1b[48;2;{};{};{}m", color.r, color.g, color.b)
+}
+
+/// Forces the use of given fg/bg colors if not given uses terminal default
+pub fn force_colors(fg_color: Option<Color>, bg_color: Option<Color>) -> String {
+    format!(
+        "\x1b[0m{}{}",
+        if let Some(color) = bg_color {
+            bg_color_to_string(color)
+        } else {
+            "".to_string()
+        },
+        if let Some(color) = fg_color {
+            fg_color_to_string(color)
+        } else {
+            "".to_string()
+        }
+    )
+}
 
 pub const YELLOW: Color = Color {
     r: 0xFF,

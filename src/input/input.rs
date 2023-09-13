@@ -14,8 +14,9 @@ use std::sync::{mpsc, Arc, RwLock};
 use std::time::Duration;
 use std::{io, thread};
 
-use crate::input_callbacks::*;
-use crate::input_observers::*;
+use crate::input::observers::{DebugObserver, ExitObserver, ReloadObserver};
+
+use super::callbacks::MOUSE_EVENT_START;
 
 /// Event debugging struct.
 /// Contains the last key and mouse events.

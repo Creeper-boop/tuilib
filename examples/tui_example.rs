@@ -1,12 +1,13 @@
 use charflow;
 use charflow::colors::{GREY, ORANGE, ORANGE_50, YELLOW};
-use charflow::complex_elements::element_tree::{
-    Element, ElementTree, Folder, Icon, Part, CLOSED_FOLDER, OPEN_FOLDER, SIMPLE_SET,
+use charflow::elements::complex::element_tree::{
+    Element, Folder, Icon, Part, CLOSED_FOLDER, OPEN_FOLDER, SIMPLE_SET,
 };
-use charflow::elements;
+use charflow::elements::complex::ElementTree;
+use charflow::elements::simple::line_box::LINES_HEAVY;
+use charflow::elements::simple::{Box, Button, Text, TextBox};
+use charflow::input::callbacks::{ENTER, MOUSE_LEFT_PRESS, UPPERCASE_J, UPPERCASE_K};
 use charflow::input::{Action, Event, Input};
-use charflow::input_callbacks::{ENTER, MOUSE_LEFT_PRESS, UPPERCASE_J, UPPERCASE_K};
-use charflow::lines::LINES_HEAVY;
 use charflow::tui::{ReactiveTUI, TUI};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
@@ -96,7 +97,7 @@ fn main() {
     // End of element tree example.
 
     // Start of text box example.
-    let text_box = elements::TextBox {
+    let text_box = TextBox {
         x: 35,
         y: 5,
         z: 0,
@@ -115,7 +116,7 @@ fn main() {
     // End of text box example.
 
     // Start of Button and box example.
-    let line_box = elements::Box {
+    let line_box = Box {
         x: 61,
         y: 5,
         z: 0,
@@ -131,7 +132,7 @@ fn main() {
 
     tui.write().unwrap().elements.push(line_box_rw_lock.clone());
 
-    let button = elements::Button {
+    let button = Button {
         x: 61,
         y: 9,
         z: 0,
@@ -182,7 +183,7 @@ fn main() {
 
     tui.write().unwrap().elements.push(button_rw_lock);
 
-    let second_button = elements::Button {
+    let second_button = Button {
         x: 61,
         y: 12,
         z: 0,
@@ -211,7 +212,7 @@ fn main() {
     // End of Button and box example.
 
     // Start of text example.
-    let text = elements::Text {
+    let text = Text {
         x: 57,
         y: 5,
         z: 0,

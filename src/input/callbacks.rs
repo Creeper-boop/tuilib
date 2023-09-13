@@ -29,7 +29,7 @@ pub const KILL: u8 = 3;
 pub const RELOAD: u8 = 12;
 // action keys
 pub const ENTER: u8 = 13;
-// uppercase letter keycoeds on a german qwertz keyboard
+// uppercase letter keycoeds tested on a german qwertz keyboard
 pub const UPPERCASE_A: u8 = 65;
 pub const UPPERCASE_B: u8 = 66;
 pub const UPPERCASE_C: u8 = 67;
@@ -56,7 +56,7 @@ pub const UPPERCASE_W: u8 = 87;
 pub const UPPERCASE_X: u8 = 88;
 pub const UPPERCASE_Y: u8 = 89;
 pub const UPPERCASE_Z: u8 = 90;
-// lowercase letter keycodes on a german quertz keyboard
+// lowercase letter keycodes tested on a german quertz keyboard
 pub const LOWERCASE_A: u8 = 97;
 pub const LOWERCASE_B: u8 = 98;
 pub const LOWERCASE_C: u8 = 99;

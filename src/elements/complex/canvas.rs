@@ -1,8 +1,8 @@
 //! Defines canvas and all of its requirements.
 
+use crate::colors::{bg_color_to_string, fg_color_to_string, force_colors, Color};
 use crate::input::{KeyAction, MouseAction};
 use crate::tui::{self, Reactive};
-use crate::tui::{bg_color_to_string, fg_color_to_string, force_colors};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, RwLock};
@@ -24,9 +24,9 @@ pub struct Canvas {
     /// Parts of the tree.
     pub elements: Vec<Arc<RwLock<Element>>>,
     /// Default element color.
-    pub element_color: Option<tui::Color>,
+    pub element_color: Option<Color>,
     /// Background fill color.
-    pub bg_color: Option<tui::Color>,
+    pub bg_color: Option<Color>,
     /// Action called upon mouse interaction.
     #[cfg_attr(feature = "serde", serde(skip_deserializing, skip_serializing))]
     pub mouse_action: MouseAction,
@@ -56,9 +56,9 @@ pub struct Element {
     /// For multi lined elements use \n as indication of a new line.
     pub look: String,
     /// Element look color.
-    pub fg_color: Option<tui::Color>,
+    pub fg_color: Option<Color>,
     /// Element background color.
-    pub bg_color: Option<tui::Color>,
+    pub bg_color: Option<Color>,
 }
 
 impl tui::Element for Canvas {

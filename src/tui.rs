@@ -1,12 +1,12 @@
 //! Tui handling module.
-use crate::input::{KeyEvent, KeyEventObserver, MouseEvent, MouseEventObserver};
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
 use std::io;
 use std::io::Write;
 use std::sync::{Arc, RwLock};
-type RwLockElement = Arc<RwLock<dyn Element>>;
-type RwLockReactive = Arc<RwLock<dyn Reactive>>;
+
+use crate::input::observers::{TuiKeyObserver, TuiMouseObserver};
+use crate::input::{KeyEvent, MouseEvent};
+pub type RwLockElement = Arc<RwLock<dyn Element>>;
+pub type RwLockReactive = Arc<RwLock<dyn Reactive>>;
 
 /// Used for all tui elements.
 pub trait Element: Sync + Send {
@@ -66,130 +66,6 @@ impl Group {
     }
 }
 
-/// Keyboard observer for element event handling.
-pub struct TuiKeyObserver {
-    /// Reference to the tui.
-    tui: Arc<RwLock<ReactiveTUI>>,
-}
-
-impl KeyEventObserver for TuiKeyObserver {
-    fn handle_key_event(&self, data: KeyEvent) {
-        let mut tui_write = self.tui.write().unwrap();
-        let reactive_elements: Vec<RwLockReactive> = tui_write
-            .reactive_elements
-            .iter()
-            .filter(|e| e.read().unwrap().get_enabled())
-            .map(|e| e.clone())
-            .collect();
-        if reactive_elements.len() > 0 {
-            for element in tui_write.reactive_elements.clone() {
-                element.write().unwrap().set_selected(false);
-            }
-            if data.code == tui_write.selection_next {
-                tui_write.selected_element += 1;
-                tui_write.selected_element %= reactive_elements.len();
-            } else if data.code == tui_write.selection_previous {
-                tui_write.selected_element += tui_write.reactive_elements.len() - 1;
-                tui_write.selected_element %= tui_write.reactive_elements.len();
-            }
-            let mut selected_element_write = reactive_elements
-                .get(tui_write.selected_element % reactive_elements.len())
-                .unwrap()
-                .write()
-                .unwrap();
-            selected_element_write.keyboard(data);
-            selected_element_write.set_selected(true);
-        } else {
-            tui_write.selected_element = 0
-        }
-    }
-}
-
-/// Mouse observer for element event handling.
-pub struct TuiMouseObserver {
-    /// Reference to the tui.
-    tui: Arc<RwLock<ReactiveTUI>>,
-}
-
-impl MouseEventObserver for TuiMouseObserver {
-    fn handle_mouse_event(&self, data: MouseEvent) {
-        let tui_read = self.tui.read().unwrap();
-        for element in &tui_read.reactive_elements {
-            let element_lock = element.read().unwrap();
-            let event_x = data.x as u16;
-            let event_y = data.y as u16;
-            if event_x >= element_lock.get_x()
-                && event_x < element_lock.get_x() + element_lock.get_width()
-                && event_y >= element_lock.get_y()
-                && event_y < element_lock.get_y() + element_lock.get_height()
-            {
-                element_lock.mouse(MouseEvent {
-                    code: data.code,
-                    x: event_x.saturating_sub(element_lock.get_x()) as u8,
-                    y: event_y.saturating_sub(element_lock.get_y()) as u8,
-                })
-            }
-        }
-    }
-}
-
-/// Defines an rgb color.
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Copy, Clone, PartialEq, Debug)]
-pub struct Color {
-    /// Red value.
-    pub r: u8,
-    /// Green value.
-    pub g: u8,
-    /// Blue value.
-    pub b: u8,
-}
-
-/// Returns ansi escape sequence to set color as foreground.
-pub fn fg_color_to_string(color: Color) -> String {
-    format!("\x1b[38;2;{};{};{}m", color.r, color.g, color.b)
-}
-
-/// Returns ansi escape sequence to set color as background.
-pub fn bg_color_to_string(color: Color) -> String {
-    format!("\x1b[48;2;{};{};{}m", color.r, color.g, color.b)
-}
-
-/// Forces the use of given fg/bg colors if not given uses terminal default
-pub fn force_colors(fg_color: Option<Color>, bg_color: Option<Color>) -> String {
-    format!(
-        "\x1b[0m{}{}",
-        if let Some(color) = bg_color {
-            bg_color_to_string(color)
-        } else {
-            "".to_string()
-        },
-        if let Some(color) = fg_color {
-            fg_color_to_string(color)
-        } else {
-            "".to_string()
-        }
-    )
-}
-
-/// Defines a pallet of line drawing characters.
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Debug, Copy, Clone)]
-pub struct LineSet {
-    /// Character for straight horizontal line.
-    pub horizontal: char,
-    /// Character for straight vertical line.
-    pub vertical: char,
-    /// Character for the top left corner of a box.
-    pub top_left: char,
-    /// Character for the top right corner of a box.
-    pub top_right: char,
-    /// Character for the bottom left corner of a box.
-    pub bottom_left: char,
-    /// Character for the bottom right corner of a box.
-    pub bottom_right: char,
-}
-
 /// Trait that defines behaviour shared between tui contexts.
 pub trait TUI {
     /// Prints all elements.
@@ -221,7 +97,7 @@ pub struct ReactiveTUI {
     /// Reactive element list to cycle through.
     pub reactive_elements: Vec<RwLockReactive>,
     /// Index of the selected element.
-    selected_element: usize,
+    pub selected_element: usize,
     /// Key event used to increase the selection index.
     pub selection_next: u8,
     /// Key event used to reduce the selection index
