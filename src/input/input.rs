@@ -119,11 +119,31 @@ pub struct Input {
     pub mouse_observers: Arc<RwLock<Vec<Arc<dyn MouseEventObserver>>>>,
 }
 
-/// Enables the emulator raw mode, returns the previous state
+/// Enables the emulator raw mode, returns the previous state.
+///
+/// Completly disables input processing.
+///
+/// Some codes are different to direct input.
 fn set_raw_mode() -> Termios {
     let mut tio = termios::tcgetattr(0).expect("Unable to get terminal attribute!");
     let old = tio.clone();
     termios::cfmakeraw(&mut tio);
+    termios::tcsetattr(0, termios::SetArg::TCSANOW, &tio).unwrap();
+    old
+}
+
+/// Enables the emulator direct input mode, returns the previous state.
+///
+/// Preffered to raw mode as it doesnt disable input processing.
+///
+/// Some codes are different to raw mode.
+fn set_direct_input() -> Termios {
+    let mut tio = termios::tcgetattr(0).expect("Unable to get terminal attribute!");
+    let old = tio.clone();
+    tio.input_flags.insert(termios::InputFlags::BRKINT);
+    tio.input_flags.remove(termios::InputFlags::IGNBRK);
+    tio.local_flags.remove(termios::LocalFlags::ECHO);
+    tio.local_flags.remove(termios::LocalFlags::ICANON);
     termios::tcsetattr(0, termios::SetArg::TCSANOW, &tio).unwrap();
     old
 }
@@ -163,7 +183,7 @@ pub fn debug_pos(x: u8, y: u8) {
 
 impl Input {
     #[allow(missing_docs)] // UwU
-    pub fn new(debug: bool) -> Input {
+    pub fn new(debug: bool, raw: bool) -> Input {
         let (input_tx, input_rx) = mpsc::channel();
         thread::spawn(move || loop {
             let mut buffer = [0u8; 1];
@@ -188,23 +208,28 @@ impl Input {
             } else {
                 None
             },
-            return_state: set_raw_mode(),
+            return_state: if raw {
+                set_raw_mode()
+            } else {
+                set_direct_input()
+            },
             input_rx,
             sys_signals: Signals::new(&[SIGWINCH, SIGTERM, SIGINT, SIGQUIT, SIGHUP]).unwrap(),
             key_observers: Arc::new(RwLock::new(Vec::new())),
             mouse_observers: Arc::new(RwLock::new(Vec::new())),
         };
-        input
-            .key_observers
-            .write()
-            .unwrap()
-            .push(Arc::new(ExitObserver {}));
-        input
-            .key_observers
-            .write()
-            .unwrap()
-            .push(Arc::new(ReloadObserver {}));
-
+        if raw {
+            input
+                .key_observers
+                .write()
+                .unwrap()
+                .push(Arc::new(ExitObserver {}));
+            input
+                .key_observers
+                .write()
+                .unwrap()
+                .push(Arc::new(ReloadObserver {}));
+        }
         if debug {
             input
                 .mouse_observers

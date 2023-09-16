@@ -6,7 +6,7 @@ use charflow::elements::complex::element_tree::{
 use charflow::elements::complex::ElementTree;
 use charflow::elements::simple::line_box::LINES_HEAVY;
 use charflow::elements::simple::{Box, Button, Text, TextBox};
-use charflow::input::callbacks::{ENTER, MOUSE_LEFT_PRESS, UPPERCASE_J, UPPERCASE_K};
+use charflow::input::callbacks::{CHAR_BACKSPACE, MOUSE_LEFT_PRESS, UPPERCASE_J, UPPERCASE_K};
 use charflow::input::{Action, Event, Input};
 use charflow::tui::{ReactiveTUI, TUI};
 use std::collections::HashMap;
@@ -142,7 +142,7 @@ fn main() {
         action: Action {
             0: Arc::new(move |data: Event| match data {
                 Event::KeyEvent(key_event) => match key_event.code {
-                    ENTER => {
+                    CHAR_BACKSPACE => {
                         let mut line_box_write = line_box_rw_lock.write().unwrap();
                         if line_box_write.bg_color == Some(GREY) {
                             line_box_write.bg_color = Some(ORANGE_50)
@@ -228,7 +228,7 @@ fn main() {
         .push(Arc::new(RwLock::new(text)));
     // End of text example.
 
-    let mut input = Input::new(true);
+    let mut input = Input::new(true, false);
 
     input.key_observers.write().unwrap().push(tui_key_observer);
     input

@@ -23,12 +23,30 @@ pub const MOUSE_EVENT_END: u8 = 91;
 // 0 to 255 with it being relayed as a byte. I cannot confirm the hypothesis as mice with 31
 // additional buttons arent available as of writing this.
 
+// wierd raw mode specific keycodes
+pub const RAW_ENTER: u8 = 13;
+
+// direct input specific codes
+// in direct input
+//     ctrl + c closes the software
+//     ctrl + s pauses the software
+//     ctrl + q unpauses the software
+//
+// all key combinations are tested on german qwertz keyboard
+// ctrl + 2
+pub const CHAR_NULL: u8 = 0;
+// ctrl + a
+pub const CHAR_START_OF_HEADING: u8 = 1;
+// ctrl + b
+pub const CHAR_START_OF_TEXT: u8 = 2;
+// ctrl + d
+pub const CHAR_END_OF_TRANSMISSION: u8 = 4;
+pub const CHAR_BACKSPACE: u8 = 10;
+
 /// event code for ctrl + c
 pub const KILL: u8 = 3;
 /// event code for ctrl + l
 pub const RELOAD: u8 = 12;
-// action keys
-pub const ENTER: u8 = 13;
 // uppercase letter keycoeds tested on a german qwertz keyboard
 pub const UPPERCASE_A: u8 = 65;
 pub const UPPERCASE_B: u8 = 66;
